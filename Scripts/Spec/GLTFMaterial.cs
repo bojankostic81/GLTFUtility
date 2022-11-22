@@ -30,6 +30,7 @@ namespace Siccity.GLTFUtility {
 		public bool doubleSided = false;
 		public Extensions extensions;
 		public JObject extras;
+		private GLTFTextureOptimizer gltfTextureOptimizer = new();
 
 		public class ImportResult {
 			public Material material;
@@ -54,7 +55,7 @@ namespace Siccity.GLTFUtility {
 			if (normalTexture != null) {
 				en = TryGetTexture(textures, normalTexture, true, tex => {
 					if (tex != null) {
-						mat.SetTexture("_BumpMap", tex);
+						mat.SetTexture("_BumpMap", gltfTextureOptimizer.GetResizedTextureByTextureType(tex, TextureType.Normal));
 						mat.EnableKeyword("_NORMALMAP");
 						mat.SetFloat("_BumpScale", normalTexture.scale);
 						if (normalTexture.extensions != null) {
@@ -68,7 +69,7 @@ namespace Siccity.GLTFUtility {
 			if (occlusionTexture != null) {
 				en = TryGetTexture(textures, occlusionTexture, true, tex => {
 					if (tex != null) {
-						mat.SetTexture("_OcclusionMap", tex);
+						mat.SetTexture("_OcclusionMap", gltfTextureOptimizer.GetResizedTextureByTextureType(tex, TextureType.ORM));
 						if (occlusionTexture.extensions != null) {
 							occlusionTexture.extensions.Apply(occlusionTexture, mat, "_OcclusionMap");
 						}
@@ -85,7 +86,7 @@ namespace Siccity.GLTFUtility {
 			if (emissiveTexture != null) {
 				en = TryGetTexture(textures, emissiveTexture, false, tex => {
 					if (tex != null) {
-						mat.SetTexture("_EmissionMap", tex);
+						mat.SetTexture("_EmissionMap", gltfTextureOptimizer.GetResizedTextureByTextureType(tex, TextureType.ORM));
 						mat.EnableKeyword("_EMISSION");
 						if (emissiveTexture.extensions != null) {
 							emissiveTexture.extensions.Apply(emissiveTexture, mat, "_EmissionMap");
@@ -131,6 +132,7 @@ namespace Siccity.GLTFUtility {
 			public float metallicFactor = 1f;
 			public float roughnessFactor = 1f;
 			public TextureInfo metallicRoughnessTexture;
+			private GLTFTextureOptimizer gltfTextureOptimizer = new();
 
 			public IEnumerator CreateMaterial(GLTFTexture.ImportResult[] textures, AlphaMode alphaMode, ShaderSettings shaderSettings, Action<Material> onFinish) {
 				// Shader
@@ -146,6 +148,7 @@ namespace Siccity.GLTFUtility {
 
 				// Assign textures
 				if (textures != null) {
+					if (baseColorTexture == null) Debug.Log("problem");
 					// Base color texture
 					if (baseColorTexture != null && baseColorTexture.index >= 0) {
 						if (textures.Length <= baseColorTexture.index) {
@@ -153,7 +156,7 @@ namespace Siccity.GLTFUtility {
 						} else {
 							IEnumerator en = textures[baseColorTexture.index].GetTextureCached(false, tex => {
 								if (tex != null) {
-									mat.SetTexture("_MainTex", tex);
+									mat.SetTexture("_MainTex", gltfTextureOptimizer.GetResizedTextureByTextureType(tex, TextureType.Diffuse));
 									if (baseColorTexture.extensions != null) {
 										baseColorTexture.extensions.Apply(baseColorTexture, mat, "_MainTex");
 									}
@@ -169,7 +172,7 @@ namespace Siccity.GLTFUtility {
 						} else {
 							IEnumerator en = TryGetTexture(textures, metallicRoughnessTexture, true, tex => {
 								if (tex != null) {
-									mat.SetTexture("_MetallicGlossMap", tex);
+									mat.SetTexture("_MetallicGlossMap", gltfTextureOptimizer.GetResizedTextureByTextureType(tex, TextureType.ORM));
 									mat.EnableKeyword("_METALLICGLOSSMAP");
 									if (metallicRoughnessTexture.extensions != null) {
 										metallicRoughnessTexture.extensions.Apply(metallicRoughnessTexture, mat, "_MetallicGlossMap");
@@ -200,6 +203,8 @@ namespace Siccity.GLTFUtility {
 			/// <summary> The specular-glossiness texture </summary>
 			public TextureInfo specularGlossinessTexture;
 
+			private GLTFTextureOptimizer gltfTextureOptimizer = new();
+
 			public IEnumerator CreateMaterial(GLTFTexture.ImportResult[] textures, AlphaMode alphaMode, ShaderSettings shaderSettings, Action<Material> onFinish) {
 				// Shader
 				Shader sh = null;
@@ -221,7 +226,7 @@ namespace Siccity.GLTFUtility {
 						} else {
 							IEnumerator en = textures[diffuseTexture.index].GetTextureCached(false, tex => {
 								if (tex != null) {
-									mat.SetTexture("_MainTex", tex);
+									mat.SetTexture("_MainTex", gltfTextureOptimizer.GetResizedTextureByTextureType(tex, TextureType.Diffuse));
 									if (diffuseTexture.extensions != null) {
 										diffuseTexture.extensions.Apply(diffuseTexture, mat, "_MainTex");
 									}
@@ -238,7 +243,7 @@ namespace Siccity.GLTFUtility {
 							mat.EnableKeyword("_SPECGLOSSMAP");
 							IEnumerator en = textures[specularGlossinessTexture.index].GetTextureCached(false, tex => {
 								if (tex != null) {
-									mat.SetTexture("_SpecGlossMap", tex);
+									mat.SetTexture("_SpecGlossMap", gltfTextureOptimizer.GetResizedTextureByTextureType(tex, TextureType.ORM));
 									mat.EnableKeyword("_SPECGLOSSMAP");
 									if (specularGlossinessTexture.extensions != null) {
 										specularGlossinessTexture.extensions.Apply(specularGlossinessTexture, mat, "_SpecGlossMap");
