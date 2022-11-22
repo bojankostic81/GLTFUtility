@@ -30,7 +30,7 @@ namespace Siccity.GLTFUtility
 			RenderTexture.active = renderTexture;
 			Graphics.Blit(tex, renderTexture);
 
-			Texture2D retTex = new Texture2D(renderTexture.width, renderTexture.width, TextureFormat.RGB24, false);
+			Texture2D retTex = new Texture2D(renderTexture.width, renderTexture.width, TextureFormat.ARGB32, false);
 			retTex.ReadPixels(new Rect(0, 0, renderTexture.width, renderTexture.height), 0, 0);
 			retTex.Apply();
 			retTex.Compress(true);
