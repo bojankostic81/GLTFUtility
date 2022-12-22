@@ -33,6 +33,7 @@ namespace Siccity.GLTFUtility
 			Texture2D retTex = new Texture2D(renderTexture.width, renderTexture.width, TextureFormat.ARGB32, false);
 			retTex.ReadPixels(new Rect(0, 0, renderTexture.width, renderTexture.height), 0, 0);
 			retTex.Apply();
+			retTex.name = "GltfImportedCompressed";
 			retTex.Compress(true);
 			return retTex;
 

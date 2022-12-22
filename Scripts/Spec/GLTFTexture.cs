@@ -28,6 +28,7 @@ namespace Siccity.GLTFUtility {
 					IEnumerator en = image.CreateTextureAsync(linear, x => cache = x, onProgress);
 					while (en.MoveNext()) { yield return null; };
 				}
+				cache.name = "GltfNonCompressed";
 				onFinish(cache);
 			}
 		}
